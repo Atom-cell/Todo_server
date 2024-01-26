@@ -22,10 +22,13 @@ app.use(cors());
 // parse application/json
 app.use(bodyParser.json());
 
+app.use('/todo', todoRoute);
+
 app.use('/', function(req, res) {
 	res.json({message: "Base route"})
 });
-app.use('/todo', todoRoute);
+
+
 
 
 server.listen(PORT, () => console.log(`server is running on port ${PORT}`));
