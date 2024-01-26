@@ -21,7 +21,10 @@ try {
 app.use(cors());
 // parse application/json
 app.use(bodyParser.json());
- 
+
+app.use('/', function(req, res) {
+	res.json({message: "Base route"})
+});
 app.use('/todo', todoRoute);
 
 
