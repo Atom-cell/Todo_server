@@ -1,4 +1,4 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
 const Todo = require('../model/TodoModel');
 
@@ -29,7 +29,7 @@ router.get('/', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
 	try {
-		const allTodos = await Todo.deleteOne({_id: req.params.id})
+		const allTodos = await Todo.deleteOne({ _id: req.params.id });
 		res.status(200).json(allTodos);
 	} catch (error) {
 		console.error(error);
@@ -39,8 +39,11 @@ router.delete('/:id', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
 	try {
-		const {text} = req.body;
-		const allTodos = await Todo.findOneAndUpdate({_id: req.params.id}, {text: text});
+		const { text } = req.body;
+		const allTodos = await Todo.findOneAndUpdate(
+			{ _id: req.params.id },
+			{ text: text }
+		);
 		res.status(200).json(allTodos);
 	} catch (error) {
 		console.error(error);
@@ -50,8 +53,11 @@ router.put('/:id', async (req, res) => {
 
 router.put('/:id/:status', async (req, res) => {
 	try {
-		const {id, status} = req.params;
-		const allTodos = await Todo.findOneAndUpdate({_id: id}, {completed: status});
+		const { id, status } = req.params;
+		const allTodos = await Todo.findOneAndUpdate(
+			{ _id: id },
+			{ completed: status }
+		);
 		res.status(200).json(allTodos);
 	} catch (error) {
 		console.error(error);
