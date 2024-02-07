@@ -7,6 +7,9 @@ const userSchema = mongoose.Schema({
     },
     password :{
         type: 'string', required: true
+    },
+    gender: {
+        type: 'string', required: true,
     }
 });
 
