@@ -29,7 +29,7 @@ router.post('/register', async (req, res) => {
 			if (existingUser) {
 				return res
 					.status(400)
-					.json({ error: 'User with this email already exists' });
+					.json({ error: 'Email already taken' });
 			}
 		} catch (err) {
 			res.status(500).json({ error: 'Internal Server Error' });
@@ -47,12 +47,12 @@ router.post('/register', async (req, res) => {
 			gender: gender
 		});
 
-		// await user.save();
+		await user.save();
 
 		res
 			.status(201)
-			.json({ email: email, name: name })
-// user_id: user._id, 
+			.json({ user_id: user._id, email: email, name: name })
+//  
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ error: 'Internal Server Error' });
