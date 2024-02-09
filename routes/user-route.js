@@ -59,7 +59,7 @@ router.post('/register', async (req, res) => {
 			return res
 				.status(201)
 				.json({
-					message: 'data',
+					message: 'Success',
 					data: { user_id: user._id, email: email, name: name },
 				});
 		}
@@ -87,7 +87,7 @@ router.post('/login', async (req, res) => {
 			return res.status(401).json({ error: 'Invalid credentials' });
 		}
 		return res
-			.status(201)
+			.status(200)
 			.json({ message: 'Success', data: { user_id: user._id, email: email } });
 	} catch (err) {
 		return res.status(500).json({ error: 'Internal Server Error' });
