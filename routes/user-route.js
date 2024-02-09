@@ -15,47 +15,82 @@ const transporter = nodemailer.createTransport({
 	},
 });
 
-router.post('/register', async (req, res) => {
+const isValidPassword = async function (password, user) {
 	try {
-		const { email, name, password, gender } = req.body;
-
-		if (!email || !name || !password || !gender) {
-			const field = !email ? 'email' : !name ? 'name' : !password ? 'password' : 'gender';
-			return res.status(400).json({ error: `${field} is required` });
-		}
-
-		try {
-			const existingUser = await User.findOne({ email: email });
-			if (existingUser) {
-				return res
-					.status(400)
-					.json({ error: 'Email already taken' });
-			}
-		} catch (err) {
-			res.status(500).json({ error: 'Internal Server Error' });
-		}
-
-		// Hash the password using bcrypt
-		const salt = await bcrypt.genSalt(10);
-		const hashedPassword = await bcrypt.hash(password, salt);
-
-		// Create a new user object
-		const user = new User({
-			email: email,
-			name: name,
-			password: hashedPassword,
-			gender: gender
-		});
-
-		await user.save();
-
-		res
-			.status(201)
-			.json({ user_id: user._id, email: email, name: name })
-//  
+		return await bcrypt.compare(password, user.password);
 	} catch (error) {
-		console.error(error);
-		res.status(500).json({ error: 'Internal Server Error' });
+		return false;
+	}
+};
+
+router.post('/register', async (req, res) => {
+	const { email, name, password, gender } = req.body;
+
+	if (!email || !name || !password || !gender) {
+		const field = !email
+			? 'email'
+			: !name
+			? 'name'
+			: !password
+			? 'password'
+			: 'gender';
+		return res.status(400).json({ error: `${field} is required` });
+	}
+
+	try {
+		const existingUser = await User.findOne({ email: email });
+		if (existingUser) {
+			return res.status(400).json({ error: 'Email already taken' });
+		} else {
+			// Hash the password using bcrypt
+			const salt = await bcrypt.genSalt(10);
+			const hashedPassword = await bcrypt.hash(password, salt);
+
+			// Create a new user object
+			const user = new User({
+				email: email,
+				name: name,
+				password: hashedPassword,
+				gender: gender,
+			});
+
+			await user.save();
+
+			return res
+				.status(201)
+				.json({
+					message: 'data',
+					data: { user_id: user._id, email: email, name: name },
+				});
+		}
+	} catch (err) {
+		return res.status(500).json({ error: 'Internal Server Error' });
+	}
+});
+
+router.post('/login', async (req, res) => {
+	const { email, password } = req.body;
+
+	if (!email || !password) {
+		const field = !email ? 'email' : 'password';
+		return res.status(400).json({ error: `${field} is required` });
+	}
+
+	try {
+		const user = await User.findOne({ email: email });
+		if (user) {
+			const validUser = await isValidPassword(password, user);
+			if (!validUser) {
+				return res.status(401).json({ error: 'Invalid credentials' });
+			}
+		} else {
+			return res.status(401).json({ error: 'Invalid credentials' });
+		}
+		return res
+			.status(201)
+			.json({ message: 'Success', data: { user_id: user._id, email: email } });
+	} catch (err) {
+		return res.status(500).json({ error: 'Internal Server Error' });
 	}
 });
 
