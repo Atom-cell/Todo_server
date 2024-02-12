@@ -6,7 +6,9 @@ const todoSchema = mongoose.Schema({
 		type: 'boolean',
 		default: false,
 	},
+	description: { type: 'string'},
 	user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+	type: { type: 'string' },
 });
 
 module.exports = mongoose.model('Todo', todoSchema);

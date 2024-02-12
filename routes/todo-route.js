@@ -4,11 +4,11 @@ const Todo = require('../model/TodoModel');
 
 router.post('/', async (req, res, next) => {
 	try {
-		const { text } = req.body;
+		const { text, type, user_id } = req.body;
 		if (!text) {
 			return res.status(400).json({ error: 'Text is required for a todo.' });
 		}
-		const newTodo = new Todo({ text });
+		const newTodo = new Todo({ text:text, type:type, user_id:user_id });
 		await newTodo.save();
 		res.status(201).json({ message: 'Todo added successfully.' });
 	} catch (error) {
@@ -17,9 +17,10 @@ router.post('/', async (req, res, next) => {
 	}
 });
 
-router.get('/', async (req, res) => {
+router.get('/:userId', async (req, res) => {
+	const userId = req.params.userId;
 	try {
-		const allTodos = await Todo.find().sort({ _id: -1 });
+		const allTodos = await Todo.find({ user_id: userId }).sort({ _id: -1 });
 		res.status(200).json(allTodos);
 	} catch (error) {
 		console.error(error);
