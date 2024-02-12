@@ -10,6 +10,9 @@ const userSchema = mongoose.Schema({
     },
     gender: {
         type: 'string', required: true,
+    },
+    access_token : {
+        type: 'string'
     }
 });
 

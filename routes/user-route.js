@@ -3,7 +3,8 @@ const router = express.Router();
 const User = require('../model/UserModel');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
-
+const RevokedToken = require('../model/RevokedTokenModel');
+const jwt = require('jsonwebtoken');
 // const transporter = nodemailer.createTransport({
 // 	service: 'gmail',
 // 	auth: {
@@ -26,7 +27,7 @@ const isValidPassword = async function (password, user) {
 const hashPassword = async (password) => {
 	const salt = await bcrypt.genSalt(10);
 	return await bcrypt.hash(password, salt);
-}
+};
 router.post('/register', async (req, res) => {
 	const { email, name, password, gender } = req.body;
 
@@ -46,7 +47,6 @@ router.post('/register', async (req, res) => {
 		if (existingUser) {
 			return res.status(400).json({ error: 'Email already taken' });
 		} else {
-			 
 			const hashedPassword = await hashPassword(password);
 			// Create a new user object
 			const user = new User({
@@ -86,9 +86,15 @@ router.post('/login', async (req, res) => {
 		} else {
 			return res.status(401).json({ error: 'Invalid credentials' });
 		}
-		return res
-			.status(200)
-			.json({ message: 'Success', data: { user: user } });
+		if (user.access_token) {
+			await RevokedToken.create({ access_token: user.access_token });
+		}
+		const token = jwt.sign({ userId: user._id }, 'your-secret-key', {
+			expiresIn: '1h',
+		});
+		user.access_token = token;
+		await user.save();
+		return res.status(200).json({ message: 'Success', data: { user: user } });
 	} catch (err) {
 		return res.status(500).json({ error: 'Internal Server Error' });
 	}
@@ -106,14 +112,14 @@ router.put('/reset-password', async (req, res) => {
 		const user = await User.findOne({ email: email });
 		if (user) {
 			const hashedPassword = await hashPassword(password);
-			await User.findOneAndUpdate({ email: email},{ password: hashedPassword});
+			await User.findOneAndUpdate(
+				{ email: email },
+				{ password: hashedPassword }
+			);
 		} else {
 			return res.status(401).json({ error: 'Invalid email' });
 		}
-		return res
-			.status(201)
-			.json({ message: 'Successfully Reset'});
-
+		return res.status(201).json({ message: 'Successfully Reset' });
 	} catch (err) {
 		console.error(err);
 		return res.status(500).json({ error: 'Internal Server Error' });
