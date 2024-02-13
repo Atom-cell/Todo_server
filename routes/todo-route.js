@@ -1,14 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const Todo = require('../model/TodoModel');
+const verifyToken = require('../middleware/authMiddleware');
 
-router.post('/', async (req, res, next) => {
+router.post('/', verifyToken, async (req, res, next) => {
 	try {
-		const { text, type, user_id } = req.body;
+		const { text, description, type } = req.body;
 		if (!text) {
 			return res.status(400).json({ error: 'Text is required for a todo.' });
 		}
-		const newTodo = new Todo({ text:text, type:type, user_id:user_id });
+		const newTodo = new Todo({ text:text, type:type, description:description, user_id: req.userId });
 		await newTodo.save();
 		res.status(201).json({ message: 'Todo added successfully.' });
 	} catch (error) {
@@ -17,8 +18,8 @@ router.post('/', async (req, res, next) => {
 	}
 });
 
-router.get('/:userId', async (req, res) => {
-	const userId = req.params.userId;
+router.get('/', verifyToken, async (req, res) => {
+	const userId = req.userId;
 	try {
 		const allTodos = await Todo.find({ user_id: userId }).sort({ _id: -1 });
 		res.status(200).json(allTodos);
@@ -28,7 +29,7 @@ router.get('/:userId', async (req, res) => {
 	}
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', verifyToken, async (req, res) => {
 	try {
 		const allTodos = await Todo.deleteOne({ _id: req.params.id });
 		res.status(200).json(allTodos);
@@ -38,7 +39,7 @@ router.delete('/:id', async (req, res) => {
 	}
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', verifyToken, async (req, res) => {
 	try {
 		const { text } = req.body;
 		const allTodos = await Todo.findOneAndUpdate(
@@ -52,7 +53,7 @@ router.put('/:id', async (req, res) => {
 	}
 });
 
-router.put('/:id/:status', async (req, res) => {
+router.put('/:id/:status', verifyToken, async (req, res) => {
 	try {
 		const { id, status } = req.params;
 		const allTodos = await Todo.findOneAndUpdate(
