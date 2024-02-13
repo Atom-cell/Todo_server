@@ -8,7 +8,7 @@ async function verifyToken(req, res, next) {
         const tokenRevoked = await RevokedToken
         .findOne({access_token: token});
         if(tokenRevoked) {
-            return res.status(401).json({ error: 'Duplicate Access not allowed' });
+            return res.status(406).json({ error: 'Duplicate Access not allowed' });
         }
 		const decoded = jwt.verify(token, 'your-secret-key');
 		req.userId = decoded.userId;
