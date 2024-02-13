@@ -18,10 +18,15 @@ router.post('/', verifyToken, async (req, res, next) => {
 	}
 });
 
-router.get('/', verifyToken, async (req, res) => {
+router.get('/:completed/', verifyToken, async (req, res) => {
 	const userId = req.userId;
+	const completed = req.params.completed;
+	const type = req.query.type;
 	try {
-		const allTodos = await Todo.find({ user_id: userId }).sort({ _id: -1 });
+		const filter = { user_id: userId, completed: completed}
+		if(type) filter['type'] = type;
+
+		const allTodos = await Todo.find(filter).sort({ _id: -1 });
 		res.status(200).json(allTodos);
 	} catch (error) {
 		console.error(error);
