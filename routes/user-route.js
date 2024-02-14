@@ -89,9 +89,7 @@ router.post('/login', async (req, res) => {
 		if (user.access_token) {
 			await RevokedToken.create({ access_token: user.access_token });
 		}
-		const token = jwt.sign({ userId: user._id }, 'your-secret-key', {
-			expiresIn: '1h',
-		});
+		const token = jwt.sign({ userId: user._id }, 'your-secret-key');
 		user.access_token = token;
 		await user.save();
 		return res.status(200).json({ message: 'Success', data: { user: user } });
