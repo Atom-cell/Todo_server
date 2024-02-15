@@ -11,7 +11,7 @@ router.post('/', verifyToken, async (req, res, next) => {
 		}
 		const newTodo = new Todo({ text:text, type:type, description:description, user_id: req.userId });
 		await newTodo.save();
-		res.status(201).json({ message: 'Todo added successfully.' });
+		res.status(201).json({ message: 'Todo added successfully.', todo: newTodo });
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ error: 'Internal Server Error' });
@@ -58,11 +58,13 @@ router.put('/:id', verifyToken, async (req, res) => {
 	}
 });
 
+//for completing and uncompleting todos
 router.put('/:id/:status', verifyToken, async (req, res) => {
+	const userId = req.userId;
 	try {
 		const { id, status } = req.params;
 		const allTodos = await Todo.findOneAndUpdate(
-			{ _id: id },
+			{ _id: id, user_id: userId },
 			{ completed: status }
 		);
 		res.status(200).json(allTodos);
