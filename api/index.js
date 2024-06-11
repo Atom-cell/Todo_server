@@ -4,8 +4,8 @@ const app = express();
 const server = http.createServer(app);
 const cors = require('cors');
 const mongoose = require('mongoose');
-const todoRoute = require('./routes/todo-route');
-const userRoute = require('./routes/user-route');
+const todoRoute = require('../routes/todo-route');
+const userRoute = require('../routes/user-route');
 var bodyParser = require('body-parser');
 require('dotenv').config();
 const PORT = process.env.PORT || 5000
