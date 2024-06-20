@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 const RevokedToken = require('../model/RevokedTokenModel');
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
 // const transporter = nodemailer.createTransport({
 // 	service: 'gmail',
 // 	auth: {
@@ -89,7 +90,7 @@ router.post('/login', async (req, res) => {
 		if (user.access_token) {
 			await RevokedToken.create({ access_token: user.access_token });
 		}
-		const token = jwt.sign({ userId: user._id }, 'your-secret-key');
+		const token = jwt.sign({ userId: user._id }, process.env.KEY);
 		user.access_token = token;
 		await user.save();
 		return res.status(200).json({ message: 'Success', data: { user: user } });
